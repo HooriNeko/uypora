@@ -23,6 +23,7 @@ jobs:
 
       - name: Download Pandoc
         run: |
+          New-Item -ItemType Directory -Path "tools" -Force
           Invoke-WebRequest -Uri "https://github.com/jgm/pandoc/releases/download/3.9.0.2/pandoc-3.9.0.2-windows-x86_64.zip" -OutFile "pandoc.zip"
           Expand-Archive -Path "pandoc.zip" -DestinationPath "tools/pandoc"
           Remove-Item "pandoc.zip"
@@ -32,6 +33,12 @@ jobs:
           Invoke-WebRequest -Uri "https://github.com/tectonic-typesetting/tectonic/releases/download/tectonic%400.15.0/tectonic-0.15.0-x86_64-pc-windows-gnu.zip" -OutFile "tectonic.zip"
           Expand-Archive -Path "tectonic.zip" -DestinationPath "tools"
           Remove-Item "tectonic.zip"
+
+      - name: Verify tools exist
+        run: |
+          Get-ChildItem -Path "tools" -Recurse | Select-Object FullName
+          Test-Path "tools/pandoc/pandoc.exe"
+          Test-Path "tools/tectonic.exe"
 
       - name: Install Node.js
         uses: actions/setup-node@v4
@@ -43,6 +50,10 @@ jobs:
 
       - name: Build
         run: npx electron-builder --win --x64 --dir
+
+      - name: Verify build output
+        run: |
+          Get-ChildItem -Path "dist/win-unpacked/resources" -Recurse | Select-Object FullName
 
       - name: Create ZIP
         run: |
