@@ -17,15 +17,21 @@ jobs:
 
       - name: Download prebuilt Electron
         run: |
+          New-Item -ItemType Directory -Path "electron-dist" -Force
           Invoke-WebRequest -Uri "https://github.com/electron/electron/releases/download/v41.1.0/electron-v41.1.0-win32-x64.zip" -OutFile "electron-dist.zip"
           Expand-Archive -Path "electron-dist.zip" -DestinationPath "electron-dist"
+          Get-ChildItem -Path "electron-dist" -Directory | ForEach-Object { Move-Item -Path "$($_.FullName)/*" -Destination "electron-dist/" }
           Remove-Item "electron-dist.zip"
+
+      - name: Create tools directory
+        run: New-Item -ItemType Directory -Path "tools" -Force
 
       - name: Download Pandoc
         run: |
-          New-Item -ItemType Directory -Path "tools" -Force
           Invoke-WebRequest -Uri "https://github.com/jgm/pandoc/releases/download/3.9.0.2/pandoc-3.9.0.2-windows-x86_64.zip" -OutFile "pandoc.zip"
-          Expand-Archive -Path "pandoc.zip" -DestinationPath "tools/pandoc"
+          Expand-Archive -Path "pandoc.zip" -DestinationPath "tools/pandoc-temp"
+          Get-ChildItem -Path "tools/pandoc-temp" -File | Move-Item -Destination "tools/pandoc/"
+          Remove-Item "tools/pandoc-temp" -Recurse -Force
           Remove-Item "pandoc.zip"
 
       - name: Download Tectonic
@@ -34,11 +40,10 @@ jobs:
           Expand-Archive -Path "tectonic.zip" -DestinationPath "tools"
           Remove-Item "tectonic.zip"
 
-      - name: Verify tools exist
+      - name: Verify tools
         run: |
-          Get-ChildItem -Path "tools" -Recurse | Select-Object FullName
-          Test-Path "tools/pandoc/pandoc.exe"
-          Test-Path "tools/tectonic.exe"
+          Write-Host "Pandoc exists: $(Test-Path 'tools/pandoc/pandoc.exe')"
+          Write-Host "Tectonic exists: $(Test-Path 'tools/tectonic.exe')"
 
       - name: Install Node.js
         uses: actions/setup-node@v4
@@ -53,11 +58,11 @@ jobs:
 
       - name: Verify build output
         run: |
-          Get-ChildItem -Path "dist/win-unpacked/resources" -Recurse | Select-Object FullName
+          Write-Host "Tools unpacked: $(Test-Path 'dist/win-unpacked/resources/tools/tectonic.exe')"
+          Write-Host "Templates: $(Test-Path 'dist/win-unpacked/resources/templates/template.tex')"
 
       - name: Create ZIP
-        run: |
-          Compress-Archive -Path "dist\win-unpacked\*" -DestinationPath "dist\uypora-win32-x64.zip"
+        run: Compress-Archive -Path "dist\win-unpacked\*" -DestinationPath "dist\uypora-win32-x64.zip"
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
