@@ -86,12 +86,34 @@ app.on('open-file', (event, filePath) => {
   }
 });
 
+function getResourcesPath() {
+  if (app.isPackaged) {
+    return path.join(process.resourcesPath, 'app.asar');
+  }
+  return path.join(__dirname, '../..');
+}
+
 function getBundledTool(name) {
-  const resourcesPath = process.resourcesPath || path.join(__dirname, '../..');
-  const toolsPath = path.join(resourcesPath, 'tools');
-  const toolPath = path.join(toolsPath, name + (process.platform === 'win32' ? '.exe' : ''));
+  let resourcesPath;
+  if (app.isPackaged) {
+    resourcesPath = path.join(process.resourcesPath, 'tools');
+  } else {
+    resourcesPath = path.join(__dirname, '../../tools');
+  }
+  const toolPath = path.join(resourcesPath, name + (process.platform === 'win32' ? '.exe' : ''));
   if (fs.existsSync(toolPath)) return toolPath;
   return name;
+}
+
+function getTemplatePath() {
+  let templatePath;
+  if (app.isPackaged) {
+    templatePath = path.join(process.resourcesPath, 'templates', 'template.tex');
+  } else {
+    templatePath = path.join(__dirname, '../../templates/template.tex');
+  }
+  if (fs.existsSync(templatePath)) return templatePath;
+  return path.join(__dirname, '../templates/template.tex');
 }
 
 function findTool(name) {
@@ -112,7 +134,7 @@ async function convertMdToTex(mdPath, outputDir) {
   const mdContent = fs.readFileSync(mdPath, 'utf8');
   const mdDir = path.dirname(mdPath);
   
-  const texTemplate = fs.readFileSync(path.join(__dirname, '../templates/template.tex'), 'utf8');
+  const texTemplate = fs.readFileSync(getTemplatePath(), 'utf8');
   
   const frontmatterMatch = mdContent.match(/^---\s*\n([\s\S]*?)\n---\s*\n/);
   let frontmatter = '';
