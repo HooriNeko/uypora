@@ -1,0 +1,58 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    runs-on: windows-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download prebuilt Electron
+        run: |
+          Invoke-WebRequest -Uri "https://github.com/electron/electron/releases/download/v41.1.0/electron-v41.1.0-win32-x64.zip" -OutFile "electron-dist.zip"
+          Expand-Archive -Path "electron-dist.zip" -DestinationPath "electron-dist"
+          Remove-Item "electron-dist.zip"
+
+      - name: Download Pandoc
+        run: |
+          Invoke-WebRequest -Uri "https://github.com/jgm/pandoc/releases/download/3.9.0.2/pandoc-3.9.0.2-windows-x86_64.zip" -OutFile "pandoc.zip"
+          Expand-Archive -Path "pandoc.zip" -DestinationPath "tools/pandoc"
+          Remove-Item "pandoc.zip"
+
+      - name: Download Tectonic
+        run: |
+          Invoke-WebRequest -Uri "https://github.com/tectonic-typesetting/tectonic/releases/download/tectonic%400.15.0/tectonic-0.15.0-x86_64-pc-windows-gnu.zip" -OutFile "tectonic.zip"
+          Expand-Archive -Path "tectonic.zip" -DestinationPath "tools"
+          Remove-Item "tectonic.zip"
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build
+        run: npx electron-builder --win --x64 --dir
+
+      - name: Create ZIP
+        run: |
+          Compress-Archive -Path "dist\win-unpacked\*" -DestinationPath "dist\uypora-win32-x64.zip"
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: dist/uypora-win32-x64.zip
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

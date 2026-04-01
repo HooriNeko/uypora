@@ -86,11 +86,20 @@ app.on('open-file', (event, filePath) => {
   }
 });
 
+function getBundledTool(name) {
+  const resourcesPath = process.resourcesPath || path.join(__dirname, '../..');
+  const toolsPath = path.join(resourcesPath, 'tools');
+  const toolPath = path.join(toolsPath, name + (process.platform === 'win32' ? '.exe' : ''));
+  if (fs.existsSync(toolPath)) return toolPath;
+  return name;
+}
+
 function findTool(name) {
+  const bundled = getBundledTool(name);
+  if (bundled !== name && fs.existsSync(bundled)) return bundled;
   const locations = process.platform === 'win32'
     ? ['C:\\Program Files\\Pandoc', 'C:\\Program Files (x86)\\Pandoc', path.join(app.getPath('home'), 'AppData\\Local\\Pandoc')]
     : ['/usr/local/bin', '/usr/bin', '/opt/homebrew/bin'];
-  
   for (const dir of locations) {
     const toolPath = path.join(dir, name + (process.platform === 'win32' ? '.exe' : ''));
     if (fs.existsSync(toolPath)) return toolPath;
@@ -182,29 +191,19 @@ async function convertMdToTex(mdPath, outputDir) {
 async function compileTexToPdf(texContent, outputDir) {
   const texPath = path.join(outputDir, 'input.tex');
   fs.writeFileSync(texPath, texContent, 'utf8');
-  
   const pdfPath = path.join(outputDir, 'output.pdf');
+  const tectonic = findTool('tectonic');
   
-  const pdflatex = findTool('pdflatex');
-  
-  const runLatex = (texFile, dir) => {
+  const runTectonic = (texFile, dir) => {
     return new Promise((resolve, reject) => {
-      const args = [
-        '-interaction=nonstopmode',
-        '-halt-on-error',
-        '-output-directory=' + dir,
-        texFile
-      ];
-      
-      const proc = spawn(pdflatex, args, { cwd: dir, shell: true });
+      const args = ['--keep-intermediates', '--keep-logs', '--outdir=' + dir, texFile];
+      const proc = spawn(tectonic, args, { cwd: dir, shell: true });
       let stdout = '', stderr = '';
-      
       proc.stdout.on('data', (data) => stdout += data);
       proc.stderr.on('data', (data) => stderr += data);
-      
       proc.on('close', (code) => {
         if (code !== 0) {
-          log.error('LaTeX stderr:', stderr);
+          log.error('Tectonic stderr:', stderr);
           reject(new Error('LaTeX compilation failed: ' + stderr));
         } else {
           resolve(stdout);
@@ -213,12 +212,10 @@ async function compileTexToPdf(texContent, outputDir) {
     });
   };
   
-  await runLatex(texPath, outputDir);
-  await runLatex(texPath, outputDir);
-  await runLatex(texPath, outputDir);
+  await runTectonic(texPath, outputDir);
   
   fs.unlinkSync(texPath);
-  ['.aux', '.log', '.out'].forEach(ext => {
+  ['.aux', '.log', '.out', '.bbl', '.blg', '.toc', '.synctex.gz'].forEach(ext => {
     const f = path.join(outputDir, 'input' + ext);
     if (fs.existsSync(f)) fs.unlinkSync(f);
   });
