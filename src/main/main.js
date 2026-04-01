@@ -118,7 +118,14 @@ function getTemplatePath() {
 
 function findTool(name) {
   const bundled = getBundledTool(name);
-  if (bundled !== name && fs.existsSync(bundled)) return bundled;
+  const bundledPath = bundled === name ? null : bundled;
+  
+  log.info(`findTool: ${name}, bundled: ${bundled}, exists: ${bundledPath && fs.existsSync(bundledPath)}`);
+  
+  if (bundledPath && fs.existsSync(bundledPath)) {
+    return bundledPath;
+  }
+  
   const locations = process.platform === 'win32'
     ? ['C:\\Program Files\\Pandoc', 'C:\\Program Files (x86)\\Pandoc', path.join(app.getPath('home'), 'AppData\\Local\\Pandoc')]
     : ['/usr/local/bin', '/usr/bin', '/opt/homebrew/bin'];
@@ -216,17 +223,27 @@ async function compileTexToPdf(texContent, outputDir) {
   const pdfPath = path.join(outputDir, 'output.pdf');
   const tectonic = findTool('tectonic');
   
+  log.info(`compileTexToPdf: tectonic path = ${tectonic}, exists = ${fs.existsSync(tectonic)}`);
+  log.info(`compileTexToPdf: isPackaged = ${app.isPackaged}, resourcesPath = ${process.resourcesPath}`);
+  
+  if (!fs.existsSync(tectonic)) {
+    throw new Error(`Tectonic not found at: ${tectonic}`);
+  }
+  
   const runTectonic = (texFile, dir) => {
     return new Promise((resolve, reject) => {
       const args = ['--keep-intermediates', '--keep-logs', '--outdir=' + dir, texFile];
+      log.info(`Running tectonic: ${tectonic} ${args.join(' ')}`);
+      
       const proc = spawn(tectonic, args, { cwd: dir, shell: true });
       let stdout = '', stderr = '';
       proc.stdout.on('data', (data) => stdout += data);
       proc.stderr.on('data', (data) => stderr += data);
       proc.on('close', (code) => {
         if (code !== 0) {
+          log.error('Tectonic stdout:', stdout);
           log.error('Tectonic stderr:', stderr);
-          reject(new Error('LaTeX compilation failed: ' + stderr));
+          reject(new Error('LaTeX compilation failed: ' + (stderr || stdout).substring(0, 500)));
         } else {
           resolve(stdout);
         }
