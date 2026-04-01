@@ -1,0 +1,61 @@
+{
+  "name": "uypora",
+  "version": "1.0.0",
+  "description": "Markdown + LaTeX to PDF converter",
+  "main": "src/main/main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron .",
+    "build": "electron-builder --win --x64"
+  },
+  "author": "uypora",
+  "license": "MIT",
+  "dependencies": {
+    "electron-log": "^5.0.0"
+  },
+  "build": {
+    "appId": "com.uypora.app",
+    "productName": "uypora",
+    "electronDist": "electron-dist",
+    "electronVersion": "41.1.0",
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": [
+        {
+          "target": "portable",
+          "arch": ["x64"]
+        }
+      ]
+    },
+    "files": [
+      "src/**/*",
+      "templates/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "templates",
+        "to": "templates"
+      }
+    ],
+    "asar": true,
+    "fileAssociations": [
+      {
+        "ext": "md",
+        "name": "Markdown File",
+        "description": "Markdown file",
+        "role": "Editor"
+      },
+      {
+        "ext": "tex",
+        "name": "LaTeX File",
+        "description": "LaTeX file",
+        "role": "Editor"
+      }
+    ]
+  },
+  "devDependencies": {
+    "electron-builder": "^26.8.1"
+  }
+}

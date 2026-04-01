@@ -1,0 +1,52 @@
+\documentclass[UTF8,9pt,twocolumn]{article}
+\usepackage{fontspec}
+\setmainfont{Noto Serif CJK SC}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs,array}
+\usepackage{graphicx}
+\usepackage{geometry}
+\geometry{a4paper,margin=0.6cm,top=0.7cm,bottom=0.7cm,left=0.6cm,right=0.6cm}
+\usepackage{titlesec}
+\usepackage{setspace}
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyfoot[C]{\thepage}
+\fancypagestyle{plain}{\pagestyle{fancy}}
+\setstretch{0.88}
+\setlength{\parindent}{0pt}
+\titleformat*{\section}{\normalsize\bfseries}
+\titlespacing*{\section}{0pt}{3pt}{1pt}
+\titlespacing*{\subsection}{0pt}{2pt}{1pt}
+\lstset{
+  basicstyle=\fontsize{7.5}{9}\ttfamily,
+  backgroundcolor=\color[HTML]{f6f8fa},
+  rulecolor=\color[HTML]{d0d7de},
+  frame={single},
+  framerule=0.5pt,
+  breaklines=true,
+  breakatwhitespace=false,
+  breakindent=0pt,
+  columns=flexible,
+  keepspaces=true,
+  xleftmargin=0pt,
+  xrightmargin=0pt,
+  aboveskip=2pt,
+  belowskip=2pt,
+  literate={\$}{\text{\$}}1
+}
+\makeatletter
+\let\verbatim=\lst@DeactivateTeX
+\let\endverbatim=\lst@ActivateTeX
+\makeatother
+
+\begin{document}
+\title{{{TITLE}}}
+\author{{{AUTHOR}}}
+\date{{{DATE}}}
+\maketitle
+
+{{{CONTENT}}}
+\end{document}

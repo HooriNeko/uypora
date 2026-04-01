@@ -1,0 +1,12 @@
+$if(geometry)$
+\usepackage{geometry}
+$endif$
+$if(booktabs)$
+\usepackage{booktabs}
+$endif$
+$if(listings)$
+\usepackage{listings}
+$endif$
+$for(header-includes)$
+$header-includes$
+$ endfor$

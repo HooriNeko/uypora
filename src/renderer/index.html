@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>uypora</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif;
+      background: #f2f2f7;
+      min-height: 100vh;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    .header {
+      background: linear-gradient(135deg, #007aff 0%, #5856d6 100%);
+      padding: 60px 20px 30px;
+      border-radius: 0 0 24px 24px;
+      text-align: center;
+    }
+    .header h1 {
+      color: white;
+      font-size: 28px;
+      font-weight: 600;
+      letter-spacing: -0.5px;
+    }
+    .header p {
+      color: rgba(255,255,255,0.8);
+      font-size: 14px;
+      margin-top: 8px;
+    }
+    .app-icon {
+      width: 80px;
+      height: 80px;
+      background: white;
+      border-radius: 20px;
+      margin: 0 auto 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    }
+    .app-icon svg {
+      width: 48px;
+      height: 48px;
+    }
+    .content {
+      padding: 24px 20px;
+    }
+    .card {
+      background: white;
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+    .card-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #8e8e93;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 16px;
+    }
+    .drop-zone {
+      border: 2px dashed #c7c7cc;
+      border-radius: 12px;
+      padding: 32px 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background: #fafafa;
+    }
+    .drop-zone:hover, .drop-zone.dragover {
+      border-color: #007aff;
+      background: rgba(0,122,255,0.05);
+    }
+    .drop-zone-icon {
+      font-size: 40px;
+      margin-bottom: 12px;
+    }
+    .drop-zone p {
+      color: #3c3c43;
+      font-size: 15px;
+      margin-bottom: 4px;
+    }
+    .drop-zone span {
+      color: #8e8e93;
+      font-size: 13px;
+    }
+    .file-info {
+      background: #f2f2f7;
+      border-radius: 12px;
+      padding: 16px;
+      display: none;
+      align-items: center;
+      gap: 12px;
+    }
+    .file-info.show { display: flex; }
+    .file-icon {
+      width: 40px;
+      height: 40px;
+      background: #007aff;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 18px;
+    }
+    .file-name {
+      flex: 1;
+      font-size: 15px;
+      color: #3c3c43;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .file-clear {
+      color: #ff3b30;
+      font-size: 14px;
+      padding: 8px;
+    }
+    .btn {
+      background: linear-gradient(135deg, #007aff 0%, #5856d6 100%);
+      color: white;
+      border: none;
+      padding: 16px 24px;
+      border-radius: 14px;
+      font-size: 17px;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 16px rgba(0,122,255,0.3);
+    }
+    .btn:hover { transform: scale(1.02); }
+    .btn:disabled {
+      background: #c7c7cc;
+      box-shadow: none;
+      transform: none;
+      cursor: not-allowed;
+    }
+    .status {
+      margin-top: 16px;
+      padding: 16px;
+      border-radius: 12px;
+      display: none;
+      font-size: 14px;
+    }
+    .status.loading {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #fff9e6;
+      color: #ff9500;
+    }
+    .status.success {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #e8f5e9;
+      color: #34c759;
+    }
+    .status.error {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #ffe8e6;
+      color: #ff3b30;
+    }
+    .spinner {
+      width: 20px;
+      height: 20px;
+      border: 2px solid currentColor;
+      border-top-color: transparent;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .footer {
+      text-align: center;
+      padding: 20px;
+      color: #8e8e93;
+      font-size: 12px;
+    }
+    .footer a { color: #007aff; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="app-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#007aff" stroke-width="2">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+        <path d="M14 2v6h6"/>
+        <path d="M16 13H8"/>
+        <path d="M16 17H8"/>
+        <path d="M10 9H8"/>
+      </svg>
+    </div>
+    <h1>uypora</h1>
+    <p>Markdown / LaTeX 转 PDF</p>
+  </div>
+  
+  <div class="content">
+    <div class="card">
+      <div class="card-title">文件</div>
+      <div class="drop-zone" id="dropZone">
+        <div class="drop-zone-icon">📄</div>
+        <p>拖拽或点击选择文件</p>
+        <span>支持 .md, .tex 文件</span>
+      </div>
+      <div class="file-info" id="fileInfo">
+        <div class="file-icon">📄</div>
+        <div class="file-name" id="fileName"></div>
+        <div class="file-clear" id="fileClear">✕</div>
+      </div>
+    </div>
+    
+    <button class="btn" id="convertBtn">开始转换</button>
+    
+    <div class="status" id="status">
+      <div class="spinner" id="spinner"></div>
+      <span id="statusText"></span>
+    </div>
+  </div>
+  
+  <div class="footer">
+    Powered by <a href="https://pandoc.org">Pandoc</a> + <a href="https://www.latex-project.org">LaTeX</a>
+  </div>
+
+  <script>
+    const dropZone = document.getElementById('dropZone');
+    const convertBtn = document.getElementById('convertBtn');
+    const status = document.getElementById('status');
+    const statusText = document.getElementById('statusText');
+    const spinner = document.getElementById('spinner');
+    const fileInfo = document.getElementById('fileInfo');
+    const fileName = document.getElementById('fileName');
+    const fileClear = document.getElementById('fileClear');
+
+    let selectedFile = null;
+
+    function setStatus(type, text) {
+      status.className = 'status ' + type;
+      statusText.textContent = text;
+      spinner.style.display = type === 'loading' ? 'block' : 'none';
+    }
+
+    async function selectFile() {
+      const path = await window.electronAPI.selectFile();
+      if (path) {
+        const name = path.split(/[\\/]/).pop();
+        selectedFile = { path, name };
+        fileName.textContent = name;
+        fileInfo.classList.add('show');
+        status.className = 'status';
+      }
+    }
+
+    async function convertFile() {
+      if (!selectedFile) {
+        await selectFile();
+        if (!selectedFile) return;
+      }
+
+      convertBtn.disabled = true;
+      convertBtn.textContent = '转换中...';
+      setStatus('loading', '正在转换，请稍候...');
+
+      try {
+        const result = await window.electronAPI.convertFile(selectedFile.path);
+        
+        if (result.success) {
+          const saved = await window.electronAPI.savePdf(result.data);
+          if (saved) {
+            setStatus('success', '转换成功！PDF 已保存。');
+          } else {
+            setStatus('success', 'PDF 已生成，请选择保存位置。');
+          }
+        } else {
+          setStatus('error', '转换失败: ' + result.error);
+        }
+      } catch (err) {
+        setStatus('error', '错误: ' + err.message);
+      }
+
+      convertBtn.disabled = false;
+      convertBtn.textContent = '再次转换';
+    }
+
+    dropZone.addEventListener('click', selectFile);
+    convertBtn.addEventListener('click', convertFile);
+    
+    fileClear.addEventListener('click', () => {
+      selectedFile = null;
+      fileInfo.classList.remove('show');
+      status.className = 'status';
+    });
+
+    dropZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropZone.classList.add('dragover');
+    });
+
+    dropZone.addEventListener('dragleave', () => {
+      dropZone.classList.remove('dragover');
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropZone.classList.remove('dragover');
+      const file = e.dataTransfer.files[0];
+      if (file && (file.name.endsWith('.md') || file.name.endsWith('.tex'))) {
+        selectedFile = { path: file.path, name: file.name };
+        fileName.textContent = file.name;
+        fileInfo.classList.add('show');
+      }
+    });
+
+    window.electronAPI.onOpenFile((filePath) => {
+      const name = filePath.split(/[\\/]/).pop();
+      selectedFile = { path: filePath, name };
+      fileName.textContent = name;
+      fileInfo.classList.add('show');
+      convertFile();
+    });
+  </script>
+</body>
+</html>
