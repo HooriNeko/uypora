@@ -96,11 +96,13 @@ function getResourcesPath() {
 function getBundledTool(name) {
   let resourcesPath;
   if (app.isPackaged) {
-    resourcesPath = path.join(process.resourcesPath, 'tools');
+    resourcesPath = path.join(process.resourcesPath, 'app.asar.unpacked', 'tools');
   } else {
     resourcesPath = path.join(__dirname, '../../tools');
   }
+  log.info(`getBundledTool: ${name}, resourcesPath: ${resourcesPath}`);
   const toolPath = path.join(resourcesPath, name + (process.platform === 'win32' ? '.exe' : ''));
+  log.info(`getBundledTool: full path: ${toolPath}, exists: ${fs.existsSync(toolPath)}`);
   if (fs.existsSync(toolPath)) return toolPath;
   return name;
 }
@@ -108,10 +110,11 @@ function getBundledTool(name) {
 function getTemplatePath() {
   let templatePath;
   if (app.isPackaged) {
-    templatePath = path.join(process.resourcesPath, 'templates', 'template.tex');
+    templatePath = path.join(process.resourcesPath, 'app.asar.unpacked', 'templates', 'template.tex');
   } else {
     templatePath = path.join(__dirname, '../../templates/template.tex');
   }
+  log.info(`getTemplatePath: ${templatePath}, exists: ${fs.existsSync(templatePath)}`);
   if (fs.existsSync(templatePath)) return templatePath;
   return path.join(__dirname, '../templates/template.tex');
 }

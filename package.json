@@ -37,20 +37,21 @@
       {
         "from": "templates",
         "to": "templates"
+      },
+      {
+        "from": "tools",
+        "to": "tools"
       }
     ],
     "asar": true,
+    "asarUnpack": [
+      "tools/**/*"
+    ],
     "fileAssociations": [
       {
         "ext": "md",
         "name": "Markdown File",
         "description": "Markdown file",
-        "role": "Editor"
-      },
-      {
-        "ext": "tex",
-        "name": "LaTeX File",
-        "description": "LaTeX file",
         "role": "Editor"
       }
     ]
