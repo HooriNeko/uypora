@@ -2,250 +2,429 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>uypora</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --ios-blue: #007AFF;
+      --ios-green: #34C759;
+      --ios-red: #FF3B30;
+      --ios-orange: #FF9500;
+      --ios-gray: #8E8E93;
+      --ios-light-gray: #C7C7CC;
+      --ios-bg: #F2F2F7;
+      --ios-card-bg: #FFFFFF;
+      --ios-text: #000000;
+      --ios-text-secondary: #3C3C43;
+      --ios-text-tertiary: #8E8E93;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      height: 100%;
+      overflow: hidden;
+    }
+
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif;
-      background: #f2f2f7;
-      min-height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", sans-serif;
+      background: var(--ios-bg);
+      color: var(--ios-text);
+      -webkit-font-smoothing: antialiased;
       -webkit-user-select: none;
       user-select: none;
     }
-    .header {
-      background: linear-gradient(135deg, #007aff 0%, #5856d6 100%);
-      padding: 60px 20px 30px;
-      border-radius: 0 0 24px 24px;
-      text-align: center;
-    }
-    .header h1 {
-      color: white;
-      font-size: 28px;
-      font-weight: 600;
-      letter-spacing: -0.5px;
-    }
-    .header p {
-      color: rgba(255,255,255,0.8);
-      font-size: 14px;
-      margin-top: 8px;
-    }
-    .app-icon {
-      width: 80px;
-      height: 80px;
-      background: white;
-      border-radius: 20px;
-      margin: 0 auto 20px;
+
+    .ios-status-bar {
+      height: 44px;
+      background: var(--ios-bg);
       display: flex;
-      align-items: center;
+      align-items: flex-end;
       justify-content: center;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
-    }
-    .app-icon svg {
-      width: 48px;
-      height: 48px;
-    }
-    .content {
-      padding: 24px 20px;
-    }
-    .card {
-      background: white;
-      border-radius: 16px;
-      padding: 20px;
-      margin-bottom: 16px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-    }
-    .card-title {
-      font-size: 13px;
-      font-weight: 600;
-      color: #8e8e93;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 16px;
-    }
-    .drop-zone {
-      border: 2px dashed #c7c7cc;
-      border-radius: 12px;
-      padding: 32px 20px;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      background: #fafafa;
-    }
-    .drop-zone:hover, .drop-zone.dragover {
-      border-color: #007aff;
-      background: rgba(0,122,255,0.05);
-    }
-    .drop-zone-icon {
-      font-size: 40px;
-      margin-bottom: 12px;
-    }
-    .drop-zone p {
-      color: #3c3c43;
-      font-size: 15px;
-      margin-bottom: 4px;
-    }
-    .drop-zone span {
-      color: #8e8e93;
-      font-size: 13px;
-    }
-    .file-info {
-      background: #f2f2f7;
-      border-radius: 12px;
-      padding: 16px;
-      display: none;
-      align-items: center;
-      gap: 12px;
-    }
-    .file-info.show { display: flex; }
-    .file-icon {
-      width: 40px;
-      height: 40px;
-      background: #007aff;
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-size: 18px;
-    }
-    .file-name {
-      flex: 1;
-      font-size: 15px;
-      color: #3c3c43;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .file-clear {
-      color: #ff3b30;
-      font-size: 14px;
-      padding: 8px;
-    }
-    .btn {
-      background: linear-gradient(135deg, #007aff 0%, #5856d6 100%);
-      color: white;
-      border: none;
-      padding: 16px 24px;
-      border-radius: 14px;
+      padding-bottom: 8px;
       font-size: 17px;
       font-weight: 600;
+    }
+
+    .ios-nav-bar {
+      height: 44px;
+      background: var(--ios-card-bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      border-bottom: 0.5px solid rgba(0,0,0,0.1);
+    }
+
+    .ios-nav-bar::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 0.5px;
+      background: rgba(0,0,0,0.1);
+    }
+
+    .ios-nav-title {
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--ios-text);
+    }
+
+    .app-container {
+      height: calc(100% - 88px);
+      overflow-y: auto;
+      padding: 20px 16px;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .ios-grouped-card {
+      background: var(--ios-card-bg);
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+
+    .ios-grouped-card::before {
+      content: '';
+      display: table;
+    }
+
+    .ios-list-item {
+      display: flex;
+      align-items: center;
+      padding: 12px 16px;
+      position: relative;
+      min-height: 44px;
       cursor: pointer;
-      width: 100%;
-      transition: all 0.3s ease;
-      box-shadow: 0 4px 16px rgba(0,122,255,0.3);
+      transition: background 0.15s;
     }
-    .btn:hover { transform: scale(1.02); }
-    .btn:disabled {
-      background: #c7c7cc;
-      box-shadow: none;
-      transform: none;
-      cursor: not-allowed;
+
+    .ios-list-item:active {
+      background: rgba(0,0,0,0.05);
     }
-    .status {
-      margin-top: 16px;
-      padding: 16px;
-      border-radius: 12px;
+
+    .ios-list-item::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 16px;
+      right: 0;
+      height: 0.5px;
+      background: rgba(0,0,0,0.1);
+    }
+
+    .ios-list-item:last-child::after {
       display: none;
-      font-size: 14px;
     }
-    .status.loading {
+
+    .ios-list-item-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .ios-list-item-label {
+      font-size: 13px;
+      color: var(--ios-text-secondary);
+    }
+
+    .ios-list-item-value {
+      font-size: 17px;
+      color: var(--ios-text);
+    }
+
+    .ios-list-item-chevron {
+      width: 8px;
+      height: 8px;
+      border-right: 2px solid var(--ios-light-gray);
+      border-bottom: 2px solid var(--ios-light-gray);
+      transform: rotate(-45deg);
+      margin-left: 8px;
+    }
+
+    .drop-zone {
+      padding: 32px 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .drop-zone-icon {
+      width: 64px;
+      height: 64px;
+      background: linear-gradient(135deg, var(--ios-blue) 0%, #5856D6 100%);
+      border-radius: 16px;
       display: flex;
       align-items: center;
-      gap: 10px;
-      background: #fff9e6;
-      color: #ff9500;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(0,122,255,0.3);
     }
-    .status.success {
+
+    .drop-zone-icon svg {
+      width: 32px;
+      height: 32px;
+      stroke: white;
+    }
+
+    .drop-zone-title {
+      font-size: 17px;
+      font-weight: 500;
+      color: var(--ios-text);
+    }
+
+    .drop-zone-subtitle {
+      font-size: 13px;
+      color: var(--ios-text-tertiary);
+    }
+
+    .file-chip {
       display: flex;
       align-items: center;
-      gap: 10px;
-      background: #e8f5e9;
-      color: #34c759;
+      gap: 12px;
+      padding: 12px 16px;
+      background: var(--ios-bg);
+      border-radius: 10px;
+      margin-top: 12px;
     }
-    .status.error {
+
+    .file-chip-icon {
+      width: 36px;
+      height: 36px;
+      background: var(--ios-blue);
+      border-radius: 8px;
       display: flex;
       align-items: center;
-      gap: 10px;
-      background: #ffe8e6;
-      color: #ff3b30;
+      justify-content: center;
     }
-    .spinner {
+
+    .file-chip-icon svg {
       width: 20px;
       height: 20px;
-      border: 2px solid currentColor;
-      border-top-color: transparent;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
+      stroke: white;
     }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .footer {
+
+    .file-chip-name {
+      flex: 1;
+      font-size: 15px;
+      color: var(--ios-text);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .file-chip-remove {
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--ios-gray);
+      font-size: 18px;
+    }
+
+    .ios-button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 50px;
+      background: linear-gradient(135deg, var(--ios-blue) 0%, #5856D6 100%);
+      border-radius: 12px;
+      font-size: 17px;
+      font-weight: 600;
+      color: white;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 4px 16px rgba(0,122,255,0.35);
+    }
+
+    .ios-button:active {
+      opacity: 0.85;
+      transform: scale(0.98);
+    }
+
+    .ios-button:disabled {
+      background: var(--ios-light-gray);
+      box-shadow: none;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .ios-button-secondary {
+      background: var(--ios-card-bg);
+      color: var(--ios-blue);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .ios-alert {
+      padding: 16px;
+      border-radius: 14px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      font-size: 15px;
+      line-height: 1.4;
+      animation: slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .ios-alert-loading {
+      background: #FFF8E6;
+      color: #B8860B;
+    }
+
+    .ios-alert-success {
+      background: #E8F5E9;
+      color: #2E7D32;
+    }
+
+    .ios-alert-error {
+      background: #FFEBEE;
+      color: #C62828;
+    }
+
+    .ios-alert-icon {
+      width: 22px;
+      height: 22px;
+      flex-shrink: 0;
+    }
+
+    .ios-alert-loading .ios-alert-icon {
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .ios-footer {
+      padding: 16px;
       text-align: center;
-      padding: 20px;
-      color: #8e8e93;
       font-size: 12px;
+      color: var(--ios-text-tertiary);
     }
-    .footer a { color: #007aff; text-decoration: none; }
+
+    .ios-footer a {
+      color: var(--ios-blue);
+      text-decoration: none;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .drag-over .drop-zone-icon {
+      transform: scale(1.1);
+      box-shadow: 0 8px 24px rgba(0,122,255,0.5);
+    }
+
+    .drag-over {
+      background: rgba(0,122,255,0.05);
+    }
   </style>
 </head>
 <body>
-  <div class="header">
-    <div class="app-icon">
-      <svg viewBox="0 0 24 24" fill="none" stroke="#007aff" stroke-width="2">
-        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-        <path d="M14 2v6h6"/>
-        <path d="M16 13H8"/>
-        <path d="M16 17H8"/>
-        <path d="M10 9H8"/>
+  <div class="ios-status-bar">
+    <span>uypora</span>
+  </div>
+  
+  <div class="ios-nav-bar">
+    <span class="ios-nav-title">转换</span>
+  </div>
+  
+  <div class="app-container">
+    <div class="ios-grouped-card">
+      <div class="ios-list-item drop-zone" id="dropZone">
+        <div class="drop-zone-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+            <line x1="12" y1="18" x2="12" y2="12"/>
+            <line x1="9" y1="15" x2="15" y2="15"/>
+          </svg>
+        </div>
+        <div class="ios-list-item-content" style="margin-left: 12px;">
+          <div class="drop-zone-title">选择文件</div>
+          <div class="drop-zone-subtitle">支持 .md, .tex 文件</div>
+        </div>
+        <div class="ios-list-item-chevron"></div>
+      </div>
+      
+      <div class="file-chip hidden" id="fileChip">
+        <div class="file-chip-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+          </svg>
+        </div>
+        <div class="file-chip-name" id="fileName"></div>
+        <div class="file-chip-remove" id="fileRemove">✕</div>
+      </div>
+    </div>
+    
+    <button class="ios-button" id="convertBtn">开始转换</button>
+    
+    <div class="ios-alert hidden" id="alert">
+      <svg class="ios-alert-icon" id="alertIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"/>
+        <line x1="12" y1="8" x2="12" y2="12"/>
+        <line x1="12" y1="16" x2="12.01" y2="16"/>
       </svg>
-    </div>
-    <h1>uypora</h1>
-    <p>Markdown / LaTeX 转 PDF</p>
-  </div>
-  
-  <div class="content">
-    <div class="card">
-      <div class="card-title">文件</div>
-      <div class="drop-zone" id="dropZone">
-        <div class="drop-zone-icon">📄</div>
-        <p>拖拽或点击选择文件</p>
-        <span>支持 .md, .tex 文件</span>
-      </div>
-      <div class="file-info" id="fileInfo">
-        <div class="file-icon">📄</div>
-        <div class="file-name" id="fileName"></div>
-        <div class="file-clear" id="fileClear">✕</div>
-      </div>
+      <span id="alertText"></span>
     </div>
     
-    <button class="btn" id="convertBtn">开始转换</button>
-    
-    <div class="status" id="status">
-      <div class="spinner" id="spinner"></div>
-      <span id="statusText"></span>
+    <div class="ios-footer">
+      Powered by <a href="https://pandoc.org">Pandoc</a> + <a href="https://tectonic">Tectonic</a>
     </div>
-  </div>
-  
-  <div class="footer">
-    Powered by <a href="https://pandoc.org">Pandoc</a> + <a href="https://www.latex-project.org">LaTeX</a>
   </div>
 
   <script>
     const dropZone = document.getElementById('dropZone');
-    const convertBtn = document.getElementById('convertBtn');
-    const status = document.getElementById('status');
-    const statusText = document.getElementById('statusText');
-    const spinner = document.getElementById('spinner');
-    const fileInfo = document.getElementById('fileInfo');
+    const fileChip = document.getElementById('fileChip');
     const fileName = document.getElementById('fileName');
-    const fileClear = document.getElementById('fileClear');
+    const fileRemove = document.getElementById('fileRemove');
+    const convertBtn = document.getElementById('convertBtn');
+    const alert = document.getElementById('alert');
+    const alertText = document.getElementById('alertText');
+    const alertIcon = document.getElementById('alertIcon');
 
     let selectedFile = null;
 
-    function setStatus(type, text) {
-      status.className = 'status ' + type;
-      statusText.textContent = text;
-      spinner.style.display = type === 'loading' ? 'block' : 'none';
+    function showAlert(type, text) {
+      alert.className = 'ios-alert ios-alert-' + type;
+      alert.classList.remove('hidden');
+      alertText.textContent = text;
+      
+      if (type === 'loading') {
+        alertIcon.innerHTML = '<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>';
+      } else if (type === 'success') {
+        alertIcon.innerHTML = '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>';
+      } else if (type === 'error') {
+        alertIcon.innerHTML = '<circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>';
+      }
+    }
+
+    function hideAlert() {
+      alert.classList.add('hidden');
     }
 
     async function selectFile() {
@@ -254,8 +433,8 @@
         const name = path.split(/[\\/]/).pop();
         selectedFile = { path, name };
         fileName.textContent = name;
-        fileInfo.classList.add('show');
-        status.className = 'status';
+        fileChip.classList.remove('hidden');
+        hideAlert();
       }
     }
 
@@ -267,7 +446,7 @@
 
       convertBtn.disabled = true;
       convertBtn.textContent = '转换中...';
-      setStatus('loading', '正在转换，请稍候...');
+      showAlert('loading', '正在转换，请稍候...');
 
       try {
         const result = await window.electronAPI.convertFile(selectedFile.path);
@@ -275,15 +454,15 @@
         if (result.success) {
           const saved = await window.electronAPI.savePdf(result.data);
           if (saved) {
-            setStatus('success', '转换成功！PDF 已保存。');
+            showAlert('success', '转换成功！PDF 已保存。');
           } else {
-            setStatus('success', 'PDF 已生成，请选择保存位置。');
+            showAlert('success', 'PDF 已生成，请选择保存位置。');
           }
         } else {
-          setStatus('error', '转换失败: ' + result.error);
+          showAlert('error', '转换失败: ' + result.error);
         }
       } catch (err) {
-        setStatus('error', '错误: ' + err.message);
+        showAlert('error', '错误: ' + err.message);
       }
 
       convertBtn.disabled = false;
@@ -293,29 +472,30 @@
     dropZone.addEventListener('click', selectFile);
     convertBtn.addEventListener('click', convertFile);
     
-    fileClear.addEventListener('click', () => {
+    fileRemove.addEventListener('click', (e) => {
+      e.stopPropagation();
       selectedFile = null;
-      fileInfo.classList.remove('show');
-      status.className = 'status';
+      fileChip.classList.add('hidden');
+      hideAlert();
     });
 
     dropZone.addEventListener('dragover', (e) => {
       e.preventDefault();
-      dropZone.classList.add('dragover');
+      dropZone.classList.add('drag-over');
     });
 
     dropZone.addEventListener('dragleave', () => {
-      dropZone.classList.remove('dragover');
+      dropZone.classList.remove('drag-over');
     });
 
     dropZone.addEventListener('drop', (e) => {
       e.preventDefault();
-      dropZone.classList.remove('dragover');
+      dropZone.classList.remove('drag-over');
       const file = e.dataTransfer.files[0];
       if (file && (file.name.endsWith('.md') || file.name.endsWith('.tex'))) {
         selectedFile = { path: file.path, name: file.name };
         fileName.textContent = file.name;
-        fileInfo.classList.add('show');
+        fileChip.classList.remove('hidden');
       }
     });
 
@@ -323,7 +503,7 @@
       const name = filePath.split(/[\\/]/).pop();
       selectedFile = { path: filePath, name };
       fileName.textContent = name;
-      fileInfo.classList.add('show');
+      fileChip.classList.remove('hidden');
       convertFile();
     });
   </script>
