@@ -103,6 +103,16 @@ function getBundledTool(name) {
   if (app.isPackaged) {
     const resourcesPath = process.resourcesPath;
     
+    if (name === 'pandoc') {
+      const pandocPath = path.join(resourcesPath, 'tools', 'pandoc', 'pandoc.exe');
+      log.info(`getBundledTool (pandoc): ${pandocPath}, exists: ${fs.existsSync(pandocPath)}`);
+      if (fs.existsSync(pandocPath)) return pandocPath;
+    } else if (name === 'tectonic') {
+      const tectonicPath = path.join(resourcesPath, 'tools', 'tectonic.exe');
+      log.info(`getBundledTool (tectonic): ${tectonicPath}, exists: ${fs.existsSync(tectonicPath)}`);
+      if (fs.existsSync(tectonicPath)) return tectonicPath;
+    }
+    
     const unpackedPath = path.join(resourcesPath, 'app.asar.unpacked', 'tools', exeName);
     log.info(`getBundledTool (unpacked): ${unpackedPath}, exists: ${fs.existsSync(unpackedPath)}`);
     if (fs.existsSync(unpackedPath)) return unpackedPath;
@@ -264,15 +274,31 @@ async function compileTexToPdf(texContent, outputDir) {
       
       const proc = spawn(tectonic, args, { cwd: dir, shell: true });
       let stdout = '', stderr = '';
-      proc.stdout.on('data', (data) => stdout += data);
-      proc.stderr.on('data', (data) => stderr += data);
+      
+      proc.stdout.on('data', (data) => {
+        const text = data.toString();
+        stdout += text;
+        log.info('Tectonic stdout:', text);
+      });
+      
+      proc.stderr.on('data', (data) => {
+        const text = data.toString();
+        stderr += text;
+        log.error('Tectonic stderr:', text);
+      });
+      
+      proc.on('error', (err) => {
+        log.error('Tectonic process error:', err);
+        reject(new Error('Failed to run tectonic: ' + err.message));
+      });
+      
       proc.on('close', (code) => {
-        if (code !== 0) {
-          log.error('Tectonic stdout:', stdout);
-          log.error('Tectonic stderr:', stderr);
-          reject(new Error('LaTeX compilation failed: ' + (stderr || stdout).substring(0, 500)));
-        } else {
+        log.info(`Tectonic exited with code: ${code}`);
+        
+        if (code === 0) {
           resolve(stdout);
+        } else {
+          reject(new Error('LaTeX compilation failed (exit code ' + code + '): ' + (stderr || stdout).substring(0, 1000)));
         }
       });
     });
