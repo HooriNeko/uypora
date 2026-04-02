@@ -7,6 +7,10 @@ const log = require('electron-log');
 log.transports.file.level = 'info';
 log.transports.console.level = 'info';
 
+log.info('App starting...');
+log.info('App isPackaged:', app.isPackaged);
+log.info('process.resourcesPath:', process.resourcesPath);
+
 let mainWindow;
 let pendingFile = null;
 
@@ -94,29 +98,49 @@ function getResourcesPath() {
 }
 
 function getBundledTool(name) {
-  let resourcesPath;
+  const exeName = name + (process.platform === 'win32' ? '.exe' : '');
+  
   if (app.isPackaged) {
-    resourcesPath = path.join(process.resourcesPath, 'app.asar.unpacked', 'tools');
+    const resourcesPath = process.resourcesPath;
+    
+    const unpackedPath = path.join(resourcesPath, 'app.asar.unpacked', 'tools', exeName);
+    log.info(`getBundledTool (unpacked): ${unpackedPath}, exists: ${fs.existsSync(unpackedPath)}`);
+    if (fs.existsSync(unpackedPath)) return unpackedPath;
+    
+    const normalPath = path.join(resourcesPath, 'tools', exeName);
+    log.info(`getBundledTool (normal): ${normalPath}, exists: ${fs.existsSync(normalPath)}`);
+    if (fs.existsSync(normalPath)) return normalPath;
+    
+    log.error(`Tool not found: ${name} at any location`);
   } else {
-    resourcesPath = path.join(__dirname, '../../tools');
+    const devPath = path.join(__dirname, '../../tools', exeName);
+    log.info(`getBundledTool (dev): ${devPath}, exists: ${fs.existsSync(devPath)}`);
+    if (fs.existsSync(devPath)) return devPath;
   }
-  log.info(`getBundledTool: ${name}, resourcesPath: ${resourcesPath}`);
-  const toolPath = path.join(resourcesPath, name + (process.platform === 'win32' ? '.exe' : ''));
-  log.info(`getBundledTool: full path: ${toolPath}, exists: ${fs.existsSync(toolPath)}`);
-  if (fs.existsSync(toolPath)) return toolPath;
+  
   return name;
 }
 
 function getTemplatePath() {
-  let templatePath;
+  const resourcesPath = process.resourcesPath;
+  
   if (app.isPackaged) {
-    templatePath = path.join(process.resourcesPath, 'app.asar.unpacked', 'templates', 'template.tex');
+    const unpackedPath = path.join(resourcesPath, 'app.asar.unpacked', 'templates', 'template.tex');
+    log.info(`getTemplatePath (unpacked): ${unpackedPath}, exists: ${fs.existsSync(unpackedPath)}`);
+    if (fs.existsSync(unpackedPath)) return unpackedPath;
+    
+    const normalPath = path.join(resourcesPath, 'templates', 'template.tex');
+    log.info(`getTemplatePath (normal): ${normalPath}, exists: ${fs.existsSync(normalPath)}`);
+    if (fs.existsSync(normalPath)) return normalPath;
+    
+    log.error(`Template not found at any location`);
+    throw new Error(`Template not found`);
   } else {
-    templatePath = path.join(__dirname, '../../templates/template.tex');
+    const devPath = path.join(__dirname, '../../templates/template.tex');
+    log.info(`getTemplatePath (dev): ${devPath}, exists: ${fs.existsSync(devPath)}`);
+    if (fs.existsSync(devPath)) return devPath;
+    throw new Error(`Template not found at: ${devPath}`);
   }
-  log.info(`getTemplatePath: ${templatePath}, exists: ${fs.existsSync(templatePath)}`);
-  if (fs.existsSync(templatePath)) return templatePath;
-  return path.join(__dirname, '../templates/template.tex');
 }
 
 function findTool(name) {
